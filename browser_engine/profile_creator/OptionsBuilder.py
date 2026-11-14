@@ -25,10 +25,6 @@ class OptionsBuilder:
             options.add_argument(f'--lang={profile.language.split(",")[0]}')
         #Setting the window size
         options.add_argument(f'--window-size={profile.screen_width},{profile.screen_height + 100}')
-        #Setting Proxy
-        if profile.proxy:
-            options.add_argument(f'--proxy-server={profile.proxy}')
-            logger.info(f"Proxy set: {profile.proxy}")
         if profile.user_data_dir:
             options.add_argument(f"--user-data-dir={profile.user_data_dir}")
         #Additional custom arguments (if provided)
@@ -62,6 +58,48 @@ class OptionsBuilder:
             return getParameter.apply(this, arguments);
         }};
         """
+        #Add canvas noise  script to JS
+        script += """
+                const originalGetImageData = CanvasRenderingContext2D.prototype.getImageData;
+                CanvasRenderingContext2D.prototype.getImageData = function(x, y, w, h) {
+                    const imageData = originalGetImageData.apply(this, arguments);
+                    if (imageData.data.length > 0) {
+                        // Вносим случайный шум в красный канал первого пикселя
+                        imageData.data[0] = imageData.data[0] ^ 1; 
+                    }
+                    return imageData;
+                };
+                """
+        # Add audio noise script to JS
+        script += """
+                const originalGetChannelData = AudioBuffer.prototype.getChannelData;
+                AudioBuffer.prototype.getChannelData = function() {
+                    const data = originalGetChannelData.apply(this, arguments);
+                    if (data.length > 0) {
+                        data[0] = data[0] + 0.0000001; // Микроскопический шум
+                    }
+                    return data;
+                };
+                """
+
+        #Add fonts script to JS
+        script += """
+                const originalCheck = document.fonts.check;
+                document.fonts.check = function(font, text) {
+                    const macFonts = ['Helvetica Neue', 'San Francisco', 'Monaco'];
+                    const winFonts = ['Segoe UI', 'Calibri', 'Consolas'];
+
+                    // Если профиль Windows, но спрашивают Mac-шрифт - говорим что его нет
+                    if ('""" + profile.os_type + """' === 'Windows') {
+                        if (macFonts.some(f => font.includes(f))) return false;
+                    }
+                    // И наоборот
+                    if ('""" + profile.os_type + """' === 'macOS') {
+                        if (winFonts.some(f => font.includes(f))) return false;
+                    }
+                    return originalCheck.apply(this, arguments);
+                };
+                """
         #For mobile
         if profile.os_type in ["Android", "iOS"]:
             script += """

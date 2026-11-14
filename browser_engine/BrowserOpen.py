@@ -3,6 +3,8 @@ import logging
 import time
 import json
 from selenium import webdriver
+import uuid
+import os
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -12,12 +14,13 @@ from selenium.common.exceptions import TimeoutException, WebDriverException
 #Builder
 from .profile_creator.OptionsBuilder import OptionsBuilder
 from .profile_creator.ProfileSchema import ProfileSchema
-
+#Proxy
+from network.ProxyManager import ProxyManager
 #logging conf
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] [%(levelname)s] - %(message)s')
 logger = logging.getLogger(__name__)
 
-def run_selenium_engine(url,profile: ProfileSchema = None):
+def run_selenium_engine(url,profile: ProfileSchema = None, proxy: dict = None):
     """selenium engine"""
     logger.info("start selenium engine")
     #Options for selenium
@@ -33,6 +36,19 @@ def run_selenium_engine(url,profile: ProfileSchema = None):
        options.add_experimental_option('useAutomationExtension', False)
        js_script = "Object.defineProperty(navigator, 'webdriver', {get: () => undefined});"
     driver = None
+    #Proxy setting
+    proxy_ext_path = None
+    if proxy:
+        logger.info(f"Setting up proxy: {proxy['host']}:{proxy['port']}")
+        options.add_argument(f'--proxy-server=http://{proxy["host"]}:{proxy["port"]}')
+
+        if proxy.get("user"):
+            ext_filename = f"proxy_auth_{uuid.uuid4().hex}.zip"
+            proxy_ext_path = ProxyManager.create_auth_extension(proxy, extension_path=ext_filename)
+            if proxy_ext_path:
+                options.add_extension(proxy_ext_path)
+                logger.info(f"Proxy auth extension loaded from {ext_filename}.")
+
     try:
         #Initialize driver
         driver = webdriver.Chrome(options=options)
@@ -63,6 +79,10 @@ def run_selenium_engine(url,profile: ProfileSchema = None):
     except Exception as e:
         logger.exception(f"Unfinded error: {e}")
         if driver: driver.quit()
+    finally:
+        if proxy_ext_path and os.path.exists(proxy_ext_path):
+            os.remove(proxy_ext_path)
+            logger.debug("Temporary proxy extension removed.")
 
 def close_selenium_engine(driver):
     """close selenium engine"""
