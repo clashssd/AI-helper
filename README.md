@@ -1,157 +1,201 @@
 # Browser Engine
 
-**Browser Engine** is a module for advanced browser automation (Selenium) that supports the generation of anti-detect profiles, fingerprint spoofing, and session management.
+A Python browser-automation project built around Selenium. It provides browser launch and shutdown helpers, reusable browser-profile and session-management components, and a SQLite data layer. The project is under active development.
 
-The project is currently under active development. The current version includes a core for launching the browser, generating unique profiles, and injecting JavaScript to bypass basic anti-bot protection systems.
+> **Use responsibly:** Run automation only on websites and accounts you own or are authorized to test. Respect each site's terms of service and access controls. This project is not intended to evade anti-bot protections or access restrictions.
 
-## Key Features (Current)
+## Features
 
-*   **Profile Generator (Anti-Detect):** Creates unique digital fingerprints based on 50+ realistic presets (Windows, macOS, Linux, Android, iOS).
-*   **Smart Jitter:** Randomizes parameters (CPU cores, RAM, screen resolution) while maintaining the logical consistency of the device configuration.
-*   **WebGL and Canvas Spoofing:** Masks the graphics card and other rendering parameters by injecting JavaScript before the page loads.
-*   **Session Management:** Persists cookies and cache using `user-data-dir` to maintain authentication across sessions.
-*   **Database:** Logs account information (usernames, passwords, statuses) into a local SQLite database. ## Project Structure
+- Selenium browser launch and shutdown helpers.
+- Reusable browser profile configuration for testing.
+- Session and cookie management.
+- SQLite data-management utilities.
+- Pytest test suite, including optional browser integration tests.
+
+## Project structure
 
 ```text
 AI-helper/
-├── browser_engine/          # Browser engine core
-│   ├── BrowserOpen.py       # Launching and closing the browser
-│   ├── session_manager.py   # Cookie management (saving/loading)
-│   └── profile_creator/     # Profile generation
-│       ├── ProfileSchema.py # Profile data schema (dataclass)
-│       ├── Presets.py       # Database of 50+ device presets
-│       ├── BuilderProfile.py# Logic for creating unique profiles
-│       └── OptionsBuilder.py# Generation of ChromeOptions and JS scripts
-├── database/                # Database operations (SQLite)
-│   └── db_manager.py        # Account management functions
-├── tests/                   # Unit tests (pytest)
-├── requirements.txt         # Dependencies
-└── README.md                # Documentation
+├── browser_engine/
+│   ├── BrowserOpen.py       # Browser launch and shutdown
+│   ├── session_manager.py   # Session and cookie management
+│   └── profile_creator/     # Browser profile configuration
+├── database/
+│   └── db_manager.py        # SQLite data-management utilities
+├── tests/                   # Pytest tests
+├── requirements.txt
+└── README.md
 ```
+
+## Requirements
+
+- Python 3
+- Google Chrome (needed for browser integration tests and browser runs)
+
 ## Installation
-```code
-1. Clone the repository
-git clone https://github.com/your_username/AI-helper.git
+
+```bash
+git clone https://github.com/clashssd/AI-helper.git
 cd AI-helper
-2. Create and activate a virtual environment:
 python -m venv .venv
-# Windows:
-.venv\Scripts\activate
-# Linux/macOS:
+```
+
+Activate the virtual environment:
+
+```bash
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
+
+# Windows Command Prompt
+.venv\Scripts\activate.bat
+
+# Linux/macOS
 source .venv/bin/activate
-3. Install dependencies:
+```
+
+Install dependencies:
+
+```bash
 pip install -r requirements.txt
 ```
-## Usage Example:
-```code
-from browser_engine.profile_creator import BuilderProfile
+
+## Basic usage
+
+The project exposes browser helpers from `browser_engine`. This example opens a page on a site you are authorized to test and closes the browser reliably:
+
+```python
 from browser_engine import run_selenium_engine, close_selenium_engine
-from database import add_account
 
-# 1. Generate a random anti-detect profile (e.g., MacBook)
-profile = BuilderProfile.build_profile(preset_name="mac_m1_air")
-print(f"Launching profile: {profile.profile_name}")
-
-# 2. Save the account to the database (if necessary)
-add_account(profile.profile_id, "https://example.com", "my_login", "my_password")
-
-# 3. Open the browser with fingerprint masking
-driver = run_selenium_engine("https://browserleaks.com/webgl", profile=profile)
+driver = run_selenium_engine("https://example.com")
 
 if driver:
-try:
-# Perform your actions on the website
-input("Press Enter to close the browser...")
-finally:
-close_selenium_engine(driver)
+    try:
+        print(driver.title)
+    finally:
+        close_selenium_engine(driver)
 ```
-## Running tests
-``` code
-# Quick tests (without launching an actual browser)
-pytest tests/ -v -m "not integration"
 
-# Tests involving an actual Chrome launch
+See the modules under `browser_engine/` for the available profile and session-management interfaces.
+
+## Running tests
+
+Run tests that do not require launching a browser:
+
+```bash
+pytest tests/ -v -m "not integration"
+```
+
+Run the browser integration tests (Chrome required):
+
+```bash
 pytest tests/test_browser.py -v -m integration
 ```
-# Disclaimer
-This tool is created solely for educational purposes. The author is not responsible for any misuse of this code.
-## Ru версия
+
+## Security and privacy
+
+- Use test data and authorized accounts only.
+- Do not commit credentials, cookies, or other secrets to the repository.
+- Avoid storing real passwords in a local database; use a secrets manager or environment variables where credentials are required.
+- Treat browser profiles and session data as sensitive, and remove them when no longer needed.
+
+## Русская версия
+
 # Browser Engine
 
-**Browser Engine** — это модуль для продвинутой автоматизации браузера (Selenium) с поддержкой генерации антидетект-профилей, маскировки отпечатков (Fingerprint Spoofing) и управления сессиями.
+Проект автоматизации браузера на Python с использованием Selenium. Он включает вспомогательные функции для запуска и закрытия браузера, компоненты для повторно используемой конфигурации профилей и управления сессиями, а также слой работы с SQLite. Проект находится в активной разработке.
 
-Проект находится в активной разработке. Текущая версия включает в себя ядро для запуска браузера, генерации уникальных профилей и внедрения JavaScript-скриптов для обхода базовых систем антибот-защиты.
+> **Используйте ответственно:** запускайте автоматизацию только на сайтах и аккаунтах, которыми вы владеете или которые вам разрешено тестировать. Соблюдайте условия использования сайтов и ограничения доступа. Проект не предназначен для обхода антибот-защиты или ограничений доступа.
 
-## Основные возможности (Текущие)
+## Возможности
 
-*   **Генератор профилей (Anti-Detect):** Создание уникальных цифровых отпечатков на основе 50+ реалистичных пресетов (Windows, macOS, Linux, Android, iOS).
-*   **Умный джиттер:** Рандомизация параметров (ядра CPU, RAM, разрешение экрана) без нарушения логической связности устройств.
-*   **Маскировка WebGL и Canvas:** Подмена видеокарты и других параметров рендеринга через внедрение JS-скриптов до загрузки страницы.
-*   **Управление сессиями:** Сохранение куки и кэша с помощью `user-data-dir` для поддержания авторизации между запусками.
-*   **База данных:** Логирование аккаунтов (логины, пароли, статусы) в локальную БД SQLite.
+- Функции запуска и закрытия браузера Selenium.
+- Повторно используемая конфигурация профиля браузера для тестирования.
+- Управление сессиями и cookies.
+- Утилиты для работы с данными в SQLite.
+- Набор тестов pytest, включая необязательные интеграционные тесты с браузером.
 
 ## Структура проекта
 
 ```text
 AI-helper/
-├── browser_engine/          # Ядро движка браузера
+├── browser_engine/
 │   ├── BrowserOpen.py       # Запуск и закрытие браузера
-│   ├── session_manager.py   # Работа с куки (сохранение/загрузка)
-│   └── profile_creator/     # Генерация профилей
-│       ├── ProfileSchema.py # Схема данных профиля (dataclass)
-│       ├── Presets.py       # База из 50+ пресетов устройств
-│       ├── BuilderProfile.py# Логика создания уникального профиля
-│       └── OptionsBuilder.py# Генерация ChromeOptions и JS-скриптов
-├── database/                # Работа с БД (SQLite)
-│   └── db_manager.py        # Функции управления аккаунтами
-├── tests/                   # Юнит-тесты (pytest)
-├── requirements.txt         # Зависимости
-└── README.md                # Документация
+│   ├── session_manager.py   # Управление сессиями и cookies
+│   └── profile_creator/     # Конфигурация профилей браузера
+├── database/
+│   └── db_manager.py        # Утилиты для работы с данными SQLite
+├── tests/                   # Тесты pytest
+├── requirements.txt
+└── README.md
 ```
+
+## Требования
+
+- Python 3
+- Google Chrome (для запуска браузера и интеграционных тестов)
+
 ## Установка
-```code
-1. Клонируйте репозиторий
-git clone https://github.com/ваш_никнейм/AI-helper.git
+
+```bash
+git clone https://github.com/clashssd/AI-helper.git
 cd AI-helper
-2. Создайте виртуальное окружение и активируйте его:
 python -m venv .venv
-# Windows:
-.venv\Scripts\activate
-# Linux/macOS:
+```
+
+Активируйте виртуальное окружение:
+
+```bash
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
+
+# Windows Command Prompt
+.venv\Scripts\activate.bat
+
+# Linux/macOS
 source .venv/bin/activate
-3.Установите зависимости:
+```
+
+Установите зависимости:
+
+```bash
 pip install -r requirements.txt
 ```
-## Пример использования:
-```code
-from browser_engine.profile_creator import BuilderProfile
+
+## Пример использования
+
+В проекте доступны функции управления браузером из `browser_engine`. Пример открывает страницу сайта, который вы уполномочены тестировать, и гарантированно закрывает браузер:
+
+```python
 from browser_engine import run_selenium_engine, close_selenium_engine
-from database import add_account
 
-# 1. Генерируем случайный антидетект-профиль (например, MacBook)
-profile = BuilderProfile.build_profile(preset_name="mac_m1_air")
-print(f"Запускаем профиль: {profile.profile_name}")
-
-# 2. Записываем аккаунт в БД (при необходимости)
-add_account(profile.profile_id, "https://example.com", "my_login", "my_password")
-
-# 3. Открываем браузер с маскировкой
-driver = run_selenium_engine("https://browserleaks.com/webgl", profile=profile)
+driver = run_selenium_engine("https://example.com")
 
 if driver:
     try:
-        # Ваши действия на сайте
-        input("Нажмите Enter для закрытия браузера...")
+        print(driver.title)
     finally:
         close_selenium_engine(driver)
 ```
-## Запуск тестов
-``` code
-# Быстрые тесты (без запуска реального браузера)
-pytest tests/ -v -m "not integration"
 
-# Тесты с реальным запуском Chrome
+Интерфейсы профилей и управления сессиями см. в модулях каталога `browser_engine/`.
+
+## Запуск тестов
+
+Запуск тестов, которым не требуется браузер:
+
+```bash
+pytest tests/ -v -m "not integration"
+```
+
+Запуск интеграционных тестов браузера (требуется Chrome):
+
+```bash
 pytest tests/test_browser.py -v -m integration
 ```
-# Дисклеймер
-Данный инструмент создан исключительно в образовательных целях.Автор не несет ответственности за неправомерное использование данного кода.
+
+## Безопасность и конфиденциальность
+
+- Используйте только тестовые данные и аккаунты, автоматизация которых разрешена.
+- Не добавляйте в репозиторий пароли, cookies и другие секреты.
+- Не храните реальные пароли в локальной базе данных; если учетные данные необходимы, используйте менеджер секретов или переменные окружения.
+- Считайте профили браузера и данные сессий конфиденциальными и удаляйте их, когда они больше не нужны.
