@@ -1,6 +1,11 @@
-# Core automation
+openai>=1.14.0
+python-dotenv>=1.0.1
+requests>=2.31.0
 selenium>=4.18.0
-
-# Testing
+seleniumbase>=4.57.0
+playwright>=1.40.0
+pytesseract>=0.3.10
+Pillow>=10.2.0
+gatesolve-selenium>=0.1.0
 pytest>=8.0.0
 pytest-cov>=5.0.0

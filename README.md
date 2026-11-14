@@ -1,4 +1,3 @@
-## EN Version
 # Browser Engine
 
 **Browser Engine** is a module for advanced browser automation (Selenium) that supports the generation of anti-detect profiles, fingerprint spoofing, and session management.
@@ -76,7 +75,7 @@ pytest tests/test_browser.py -v -m integration
 ```
 # Disclaimer
 This tool is created solely for educational purposes. The author is not responsible for any misuse of this code.
-## RU версия
+## Ru версия
 # Browser Engine
 
 **Browser Engine** — это модуль для продвинутой автоматизации браузера (Selenium) с поддержкой генерации антидетект-профилей, маскировки отпечатков (Fingerprint Spoofing) и управления сессиями.
